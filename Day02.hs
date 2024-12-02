@@ -1,4 +1,4 @@
-import Data.List (sort)
+import Data.List (delete, sort)
 
 -- part 1
 
@@ -32,3 +32,23 @@ test = solve testInput == 2
 main = do
   input <- getContents
   print (solve input)
+  print (solve' input)
+
+-- part 2
+
+solve' input = length (filter id (map testSafety' parsedInput))
+ where
+  parsedInput = parse input
+
+testSafety' :: [Int] -> Bool
+testSafety' report = testSafety report || any testSafety (permutations report)
+
+permutations :: [Int] -> [[Int]]
+permutations report = map (removeIndex report) [0 .. length report - 1]
+
+removeIndex :: [Int] -> Int -> [Int]
+removeIndex list n = left ++ tail right
+ where
+  (left, right) = splitAt n list
+
+test' = solve' testInput == 4
