@@ -1,3 +1,4 @@
+import Data.Text (breakOn, empty, pack, unpack)
 import Text.Regex.TDFA ((=~))
 
 testInput = "xmul(2,4)%&mul[3,7]!@^do_not_mul(5,5)+mul(32,64]then(mul(11,8)mul(8,5))"
@@ -24,6 +25,27 @@ solve input =
 
 test = solve testInput == 161
 
+-- part 2
+testInput' = "xmul(2,4)&mul[3,7]!^don't()_mul(5,5)+mul(32,64](mul(11,8)undo()?mul(8,5))"
+
+dont = pack "don't()"
+doPack = pack "do()"
+
+breakOnDo input = unpack b
+ where
+  (_, b) = breakOn doPack input
+
+solve' input
+  | b == empty = solve (unpack a)
+  | otherwise = solve (unpack a) + solve' (breakOnDo b)
+ where
+  (a, b) = breakOn dont (pack input)
+
+test' = solve' testInput' == 48
+
 main = do
+  if test then print "test passed" else print "test failed"
+  if test' then print "test' passed" else print "test' failed"
   input <- getContents
   print (solve input)
+  print (solve' input)
