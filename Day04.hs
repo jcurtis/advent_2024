@@ -137,3 +137,34 @@ test = solve testInput == 18
 main = do
   input <- getContents
   print (solve input)
+  print (solve' input)
+
+-- part 2
+
+pos grid (x, y) = grid !! y !! x
+
+-- a - b
+-- - c -
+-- d - e
+checkMas' grid (x, y)
+  | c /= 'A' = False
+  | a == 'M' && b == 'M' && d == 'S' && e == 'S' = True
+  | a == 'M' && b == 'S' && d == 'M' && e == 'S' = True
+  | a == 'S' && b == 'S' && d == 'M' && e == 'M' = True
+  | a == 'S' && b == 'M' && d == 'S' && e == 'M' = True
+  | otherwise = False
+ where
+  a = pos grid (x - 1, y - 1)
+  b = pos grid (x + 1, y - 1)
+  c = pos grid (x, y)
+  d = pos grid (x - 1, y + 1)
+  e = pos grid (x + 1, y + 1)
+
+solve' input =
+  let lengthX = length (head grid)
+      lengthY = length grid
+   in count ([checkMas' grid (x, y) | x <- [1 .. (lengthX - 2)], y <- [1 .. (lengthY - 2)]])
+ where
+  grid = lines input
+
+test' = solve' testInput == 9
