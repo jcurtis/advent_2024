@@ -128,7 +128,7 @@ checkMas grid (x, y) =
 solve input =
   let lengthX = length (head grid)
       lengthY = length grid
-   in sum ([checkMas grid (x, y) | x <- [0 .. 9], y <- [0 .. 9]])
+   in sum ([checkMas grid (x, y) | x <- [0 .. (lengthX - 1)], y <- [0 .. (lengthY - 1)]])
  where
   grid = lines input
 
