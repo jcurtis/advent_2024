@@ -32,7 +32,9 @@ middle xs = xs !! middleIndex
   len = length xs
   middleIndex = len `div` 2
 
-solve input = sum $ map middle (filter (verifyUpdate rules) updates)
+countMiddles updates = sum $ map middle updates
+
+solve input = countMiddles (filter (verifyUpdate rules) updates)
  where
   (rules, updates) = parse input
 
@@ -41,3 +43,22 @@ test = solve testInput == 143
 main = do
   input <- getContents
   print (solve input)
+  print (solve' input)
+
+-- part 2
+
+fixRule :: [Int] -> (Int, Int) -> [Int]
+fixRule update (a, b)
+  | verifyRule update (a, b) = update
+  | otherwise =
+      let (pre, _ : post) = break (== a) update
+       in filter (/= b) pre ++ [a, b] ++ post
+
+fixUpdate rules update = foldr (flip fixRule) update rules
+
+solve' input = countMiddles (map (fixUpdate rules) badUpdates)
+ where
+  (rules, updates) = parse input
+  badUpdates = filter (not . verifyUpdate rules) updates
+
+test' = solve' testInput == 123
