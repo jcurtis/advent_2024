@@ -47,14 +47,14 @@ main = do
 
 -- part 2
 
-fixRule :: [Int] -> (Int, Int) -> [Int]
-fixRule update (a, b)
+fixRule :: (Int, Int) -> [Int] -> [Int]
+fixRule (a, b) update
   | verifyRule update (a, b) = update
   | otherwise =
       let (pre, _ : post) = break (== a) update
        in filter (/= b) pre ++ [a, b] ++ post
 
-fixUpdate rules update = foldr (flip fixRule) update rules
+fixUpdate rules update = foldr fixRule update rules
 
 solve' input = countMiddles (map (fixUpdate rules) badUpdates)
  where
