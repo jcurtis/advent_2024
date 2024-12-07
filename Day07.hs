@@ -9,7 +9,7 @@ testInvalid = parseEquation "7290: 6 8 6 15"
 
 -- part 1
 
-parseEquation :: String -> (Int, [Int])
+parseEquation :: String -> (Integer, [Integer])
 parseEquation input = (read (init result), map read operands)
  where
   (result : operands) = words input
@@ -22,12 +22,14 @@ applyPerm [x] _ = x
 applyPerm (x : _) [] = x
 applyPerm (a : b : operands) (operator : operators) = applyPerm ((a `operator` b) : operands) operators
 
-validEquation _ [] = False
-validEquation result operands = or [applyPerm operands perm == result | perm <- perms]
+validEquation _ [] _ = False
+validEquation result operands operators = or [applyPerm operands perm == result | perm <- perms]
  where
-  perms = replicateM (length operands) [(+), (*)]
+  perms = replicateM (length operands) operators
 
-solve input = sum (map fst (filter (uncurry validEquation) equations))
+validEquation1 result operands = validEquation result operands [(+), (*)]
+
+solve input = sum (map fst (filter (uncurry validEquation1) equations))
  where
   equations = parse input
 
@@ -36,3 +38,14 @@ test = solve testInput == 3749
 main = do
   input <- getContents
   print (solve input)
+  print (solve' input)
+
+con a b = read (show a ++ show b)
+
+validEquation2 result operands = validEquation result operands [(+), (*), con]
+
+solve' input = sum (map fst (filter (uncurry validEquation2) equations))
+ where
+  equations = parse input
+
+test' = solve' testInput == 11387
