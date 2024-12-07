@@ -1,3 +1,4 @@
+import Data.List (sortBy)
 import Data.List.Split (splitOn)
 
 testInput = "47|53\n97|13\n97|61\n97|47\n75|29\n61|13\n75|53\n29|13\n97|29\n53|29\n61|53\n97|53\n61|29\n47|13\n75|47\n97|75\n47|61\n75|61\n47|29\n75|13\n53|1\n\n75,47,61,53,29\n97,61,53,29,13\n75,29,13\n75,97,47,61,53\n61,13,29\n97,13,75,29,47"
@@ -47,18 +48,19 @@ main = do
 
 -- part 2
 
-fixRule :: (Int, Int) -> [Int] -> [Int]
-fixRule (a, b) update
-  | verifyRule update (a, b) = update
-  | otherwise =
-      let (pre, _ : post) = break (== a) update
-       in filter (/= b) pre ++ [a, b] ++ post
-
-fixUpdate rules update = foldr fixRule update rules
-
-solve' input = countMiddles (map (fixUpdate rules) badUpdates)
+solve' input = countMiddles (map (sortUpdate rules) badUpdates)
  where
   (rules, updates) = parse input
   badUpdates = filter (not . verifyUpdate rules) updates
 
 test' = solve' testInput == 123
+
+compareRule a b rule
+  | rule == (b, a) = GT
+  | otherwise = LT
+
+compareRules rules a b
+  | any (\rule -> GT == compareRule a b rule) rules = GT
+  | otherwise = EQ
+
+sortUpdate rules = sortBy (compareRules rules)
