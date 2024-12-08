@@ -6,11 +6,12 @@ testInput = "............\n........0...\n.....0......\n.......0....\n....0......
 -- part 1
 
 parse input =
-  ( [ (grid !! y !! x, (x, y))
-    | x <- [0 .. lenX - 1]
-    , y <- [0 .. lenY - 1]
-    , grid !! y !! x /= '.'
-    ]
+  ( foldGrid
+      [ (grid !! y !! x, (x, y))
+      | x <- [0 .. lenX - 1]
+      , y <- [0 .. lenY - 1]
+      , grid !! y !! x /= '.'
+      ]
   , (lenX, lenY)
   )
  where
@@ -47,13 +48,42 @@ antinodes (a, b) (c, d)
 
 withinBounds (lenX, lenY) (x, y) = x >= 0 && y >= 0 && x < lenX && y < lenY
 
-solve input = length $ nub $ concatMap (filter (withinBounds bounds) . antinodesFromList . snd) (Map.toList mapped)
+solve input = length $ nub $ concatMap (filter (withinBounds bounds) . antinodesFromList . snd) (Map.toList grid)
  where
   (grid, bounds) = parse input
-  mapped = foldGrid grid
 
 test = solve testInput == 14
 
 main = do
   input <- getContents
   print (solve input)
+  print (solve' input)
+
+-- part 2
+
+solve' input = length $ nub $ concatMap (\(_, nodes) -> harmonicsFromList nodes bounds) (Map.toList grid)
+ where
+  (grid, bounds) = parse input
+
+resonance operator (a, b) (x, y) = (antiA, antiB) : resonance operator (antiA, antiB) (x, y)
+ where
+  (antiA, antiB) = (a `operator` x, b `operator` y)
+
+resonancePos = resonance (+)
+resonanceNeg = resonance (-)
+
+harmonics checkBounds (a, b) (c, d)
+  | a == c && b == d = [(a, b)]
+  | otherwise =
+      takeWhile checkBounds (resonanceNeg (a, b) (x, y))
+        ++ [(a, b), (c, d)]
+        ++ takeWhile checkBounds (resonancePos (a, b) (x, y))
+ where
+  (x, y) = (a - c, b - d)
+
+harmonicsFromList nodes bounds = concatMap (uncurry (harmonics checkBounds)) pairs
+ where
+  pairs = [(x, y) | x <- nodes, y <- nodes, x < y]
+  checkBounds = withinBounds bounds
+
+test' = solve' testInput == 34
