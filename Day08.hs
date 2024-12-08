@@ -40,10 +40,10 @@ antinodesFromList nodes = nub $ concatMap (uncurry antinodes) pairs
 -- ..........
 -- ..........
 antinodes (a, b) (c, d)
-  | (a + b) < (c + d) = [(a - x, b - y), (c + x, d + y)]
+  | a == c && b == d = []
   | otherwise = [(a + x, b + y), (c - x, d - y)]
  where
-  (x, y) = (abs (a - c), abs (b - d))
+  (x, y) = (a - c, b - d)
 
 withinBounds (lenX, lenY) (x, y) = x >= 0 && y >= 0 && x < lenX && y < lenY
 
