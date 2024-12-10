@@ -3,4 +3,5 @@ cabal install --lib \
   text \
   regex-tdfa \
   containers \
-  parallel
+  parallel \
+  extra

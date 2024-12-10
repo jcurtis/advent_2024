@@ -1,9 +1,11 @@
 import Data.Char (digitToInt)
+import Data.List.Extra (breakEnd, breakOn)
 import Data.List.Split (chunksOf)
 
 main = do
   input <- getContents
-  print (solve input)
+  -- print (solve input)
+  print (solve' input)
 
 -- part 1
 
@@ -31,8 +33,29 @@ defrag disk
   move = last disk
   (pre, post) = break (== (-1)) disk
 
-checksum disk = sum (mapIndex (*) disk)
+op _ (-1) = 0
+op idx id = idx * id
+checksum disk = sum (mapIndex op disk)
 
 solve input = checksum (defrag (expandDisk input))
 
 test = solve testInput == 1928
+
+-- part 2
+
+defragId id disk
+  | id <= 0 = disk
+  | null postDisk = defragId (id - 1) disk
+  | otherwise = defragId (id - 1) (preDisk ++ file ++ drop fileLen postDisk ++ emptyness ++ end)
+ where
+  (start, mid) = break (== id) disk
+  (file, end) = breakEnd (== id) mid
+  fileLen = length file
+  emptyness = replicate fileLen (-1)
+  (preDisk, postDisk) = breakOn emptyness start
+
+solve' input = checksum $ defragId (last disk) disk
+ where
+  disk = expandDisk input
+
+test' = solve' testInput == 2858
