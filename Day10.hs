@@ -4,6 +4,7 @@ import Data.List (nub)
 main = do
   input <- getContents
   print (solve input)
+  print (solve' input)
 
 testInput = "89010123\n78121874\n87430965\n96549874\n45678903\n32019012\n01329801\n10456732"
 testGrid = parse testInput
@@ -38,3 +39,17 @@ solve input = length $ concatMap (trailBranches grid) (trailheads grid)
   grid = parse input
 
 test = solve testInput == 36
+
+-- part 2
+
+trailBranches' grid curPos
+  | nextNodeScore > 9 = [curPos]
+  | otherwise = concatMap (trailBranches' grid) (nextSteps grid curPos)
+ where
+  nextNodeScore = pos grid curPos + 1
+
+solve' input = length $ concatMap (trailBranches' grid) (trailheads grid)
+ where
+  grid = parse input
+
+test' = solve' testInput == 81
