@@ -2,7 +2,7 @@ testInput = "125 17"
 
 main = do
   input <- getContents
-  print (solve testInput)
+  print (solve input)
 
 -- part 1
 
