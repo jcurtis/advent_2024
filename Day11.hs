@@ -1,8 +1,14 @@
+import Data.MemoTrie (memo)
+
 testInput = "125 17"
 
 main = do
   input <- getContents
-  print (solve input)
+  print (solveFor 25 input)
+  print (solveFor 75 input)
+
+-- print (solve input)
+-- print (solve' input)
 
 -- part 1
 
@@ -24,9 +30,32 @@ blinkStone stone =
     then splitStone stone
     else [stone * 2024]
 
+memoBlinkStone = memo blinkStone
+
 blinkStones :: [Integer] -> [Integer]
-blinkStones = concatMap blinkStone
+blinkStones = concatMap memoBlinkStone
 
 solve input = length $ iterate blinkStones (parse input) !! 25
 
+blinkStone' :: Integer -> Integer -> Integer
+blinkStone' 0 _ = 1
+blinkStone' iterations stone
+  | stone == 0 = memoBlinkStone' iterationsLeft 1
+  | even (numDigits stone) =
+      let [a, b] = splitStone stone
+       in memoBlinkStone' iterationsLeft a + memoBlinkStone' iterationsLeft b
+  | otherwise = memoBlinkStone' iterationsLeft (stone * 2024)
+ where
+  iterationsLeft = iterations - 1
+
+memoBlinkStone' = memo blinkStone'
+
+solveFor blinks input = sum $ map (blinkStone' blinks) stones
+ where
+  stones = parse input
+
 test = solve testInput == 55312
+
+-- part 2
+
+solve' input = length $ iterate blinkStones (parse input) !! 75
